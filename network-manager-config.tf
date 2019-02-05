@@ -57,6 +57,9 @@ resource "local_file" "network-manager-config-export" {
  persist-tun
  user nobody
  group nogroup
+ up /etc/openvpn/scripts/update-systemd-resolved
+ down /etc/openvpn/scripts/update-systemd-resolved
+ down-pre
 EOF
 }
 
