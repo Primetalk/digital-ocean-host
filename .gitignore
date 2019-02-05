@@ -1,0 +1,7 @@
+*.tfvars
+*.tfstate
+*.backup
+terraform/openvpn-ca
+*.conf
+.idea/
+terraform/.terraform/
