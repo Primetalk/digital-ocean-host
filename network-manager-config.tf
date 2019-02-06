@@ -64,6 +64,6 @@ EOF
 }
 
 output "cmd to import remote-host-vpn-connection" {
-  value = "nmcli connection import type openvpn file remote-host-vpn-connection-export.conf"
+  value = "nmcli connection import type openvpn file remote-host-vpn.conf"
 //  value = "FILE=/etc/NetworkManager/system-connections/remote-host-vpn-connection; sudo cp remote-host-vpn-connection $FILE; sudo chmod 600 $FILE"
 }

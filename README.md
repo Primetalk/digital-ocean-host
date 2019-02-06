@@ -13,8 +13,10 @@ There are following concerns that need to be addressed:
 - instantiate a remote instance ("droplet");
 - use instance via SSH; 
 - deploy server keys;
-- configure remote user on the remote server;
+- configure remote user on the remote server; (optional, only if we want to login to the remote machine)
 - configure OpenVPN (with default configuration);
+- enable routing and NAT;
+- make sure that DNS is provided by VPN and is being used by client connection;
 - generate configuration of the local connection to OpenVPN (using NetworkManager);
 
 We cannot fully trust the remote instance. And we are going to recreate such instances 
@@ -204,4 +206,18 @@ and OpenVPN client and use this VPN.
 
 ### Routing on local machine
 
-There might be some issues with routing on the local machine.
+There might be some issues with routing on the local machine. In particular, after connection
+is established it tries to route the address of the remote host via VPN. And fails. 
+To exclude this address from routing we should send it to the default client's router:  
+```bash
+sudo ip ro add 12.34.56.78/32 via 192.168.1.1 dev eth0
+```
+
+### DNS troubleshooting
+
+See https://askubuntu.com/questions/1032476/ubuntu-18-04-no-dns-resolution-when-connected-to-openvpn
+```bash
+sudo apt install openvpn-systemd-resolved
+```
+(NB! It'll remove `systemd-shim`.)
+The rest is included in the generated vpn configuration.
