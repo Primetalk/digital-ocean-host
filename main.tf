@@ -6,6 +6,8 @@ variable "ssh_public_key_path" {
   default = "~/.ssh/id_rsa.pub"
 }
 variable "ssh_key_do_id" {}
+variable "local_router" { default = "192.168.0.1"}
+variable "local_router_dev" { default = "eth0"}
 
 # Configure the DigitalOcean Provider
 provider "digitalocean" {
@@ -72,8 +74,11 @@ resource "digitalocean_droplet" "remote-host" {
 //      "apt-get install openvpn easy-rsa"
     ]
   }
-  provisioner "local-exec" { command = "nmcli connection import type openvpn file remote-host-vpn.conf" }
-//  provisioner "local-exec" { command = "sudo ip ro add ${digitalocean_droplet.remote-host.ipv4_address}/32 via 192.168.1.1 dev eth0" }
+}
+
+resource "null_resource" "import-connection" {
+  provisioner "local-exec" { command = "nmcli connection import type openvpn file ${local_file.network-manager-config-export.filename}" }
+  provisioner "local-exec" { command = "sudo ip ro add ${digitalocean_droplet.remote-host.ipv4_address}/32 via ${var.local_router} dev ${var.local_router_dev}" }
 }
 
 output "ip" {
@@ -81,7 +86,7 @@ output "ip" {
 }
 
 output "ip ro" {
-  value = "sudo ip ro add ${digitalocean_droplet.remote-host.ipv4_address}/32 via 192.168.1.1"
+  value = "sudo ip ro add ${digitalocean_droplet.remote-host.ipv4_address}/32 via ${var.local_router} dev ${var.local_router_dev}"
 }
 
 output "ssh-socks" {
