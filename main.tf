@@ -23,6 +23,8 @@ resource "digitalocean_droplet" "remote-host" {
   size   = "s-1vcpu-1gb"
   ssh_keys = ["${var.ssh_key_do_id}"]
 
+#  ipv6 = true
+
   connection {
     agent = true
     user = "root"
@@ -34,6 +36,7 @@ resource "digitalocean_droplet" "remote-host" {
 //      "adduser --quiet ${var.user} sudo",
       // allow ssh connection
 //      "mkdir -p /home/${var.user}/.ssh/",
+      "apt-get update",
       "apt-get -y install openvpn"
       // Do we need easy-rsa?
     ]
@@ -59,12 +62,17 @@ resource "digitalocean_droplet" "remote-host" {
       // Configure OpenVPN to Route DNS via VPN
       "echo '' | tee -a /etc/openvpn/server.conf",
       "echo 'push \"dhcp-option DNS 8.8.8.8\"' | tee -a /etc/openvpn/server.conf",
+      "echo 'push \"dhcp-option DNS 2001:4860:4860::8888\"' | tee -a /etc/openvpn/server.conf",
       "echo 'push \"dhcp-option DOMAIN-ROUTE .\"' | tee -a /etc/openvpn/server.conf",
       "echo 'push \"redirect-gateway local def1\"' | tee -a /etc/openvpn/server.conf",
       // Enable IPv4 forwarding
       "echo 'net.ipv4.ip_forward=1' | tee -a /etc/sysctl.conf",
-      // Configuring NAT
+      // Enable IPv6 forwarding
+      "echo 'net.ipv6.ip_forward=1' | tee -a /etc/sysctl.conf",
+      // Configuring NAT for ipv4
       "iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE",
+      // Configuring NAT for ipv6
+      "ip6tables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE",
       // restarting sysctl
       "sysctl -p",
       // start openvpn server
