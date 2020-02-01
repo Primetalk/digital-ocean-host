@@ -1,6 +1,6 @@
 resource "local_file" "network-manager-config" {
   filename = "remote-host-vpn-connection"
-  content = <<EOF
+  content  = <<EOF
 [connection]
 id=remote-host-1
 uuid=88599b3a-ab02-480a-aa65-4bcfa81f4dac
@@ -35,11 +35,12 @@ dns-search=
 ip6-privacy=0
 method=auto
 EOF
+
 }
 
 resource "local_file" "network-manager-config-export" {
   filename = "remote-host-vpn-connection-export.conf"
-  content = <<EOF
+  content  = <<EOF
  client
  remote '${digitalocean_droplet.remote-host.ipv4_address}'
  ca '${path.module}/openvpn-ca/keys/ca.crt'
@@ -61,9 +62,11 @@ resource "local_file" "network-manager-config-export" {
  down /etc/openvpn/scripts/update-systemd-resolved
  down-pre
 EOF
+
 }
 
-output "cmd to import remote-host-vpn-connection" {
+output "cmd_to_import_remote-host-vpn-connection" {
   value = "nmcli connection import type openvpn file remote-host-vpn.conf"
-//  value = "FILE=/etc/NetworkManager/system-connections/remote-host-vpn-connection; sudo cp remote-host-vpn-connection $FILE; sudo chmod 600 $FILE"
+  //  value = "FILE=/etc/NetworkManager/system-connections/remote-host-vpn-connection; sudo cp remote-host-vpn-connection $FILE; sudo chmod 600 $FILE"
 }
+
